@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jonasmalacofilho/git-cache-http-server.git"
+    "url": "git+https://github.com/superhumane/git-cache-http-server.git"
   },
   "author": "Jonas Malaco Filho <jonas@elebeta.com.br> (https://jonasmalaco.com)",
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/jonasmalacofilho/git-cache-http-server/issues"
   },
-  "homepage": "https://github.com/jonasmalacofilho/git-cache-http-server#readme",
+  "homepage": "https://github.com/superhumane/git-cache-http-server#readme",
   "devDependencies": {
     "haxe": "^5.0.0"
   },
