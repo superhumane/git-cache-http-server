@@ -2,6 +2,6 @@
 --main Main
 --class-path src
 --library hxnodejs
---library jmf-npm-externs:git:https://github.com/jonasmalacofilho/jmf-npm-externs.hx#master
+--library jmf-npm-externs:git:https://github.com/superhumane/jmf-npm-externs.hx#master
 --macro BuildUtils.addShebang("/usr/bin/env", "node")
 --macro BuildUtils.makeExecutable()
