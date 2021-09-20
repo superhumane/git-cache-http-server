@@ -1,0 +1,25 @@
+version: '3'
+services:
+  node:
+    image: node:current-buster
+    container_name: git-cache-http-server
+    tty: true
+    environment:
+      IS_DEV: true
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./:/usr/src
+    working_dir: /usr/src
+    environment:
+      - PORT=3000
+    expose:
+      - '3000'
+    stop_signal: 'SIGKILL'
+    command: >
+      sh -c
+      "apt-get update &&
+      apt-get install -y haxe &&
+      npm install --global git-cache-http-server &&
+      git-cache-http-server --port 8080 --cache-dir /tmp/cache/git"
+      
