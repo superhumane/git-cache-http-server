@@ -20,6 +20,8 @@ services:
       sh -c
       "apt-get update &&
       apt-get install -y haxe &&
-      npm install --global git-cache-http-server &&
+      chmod 777 /root &&
+      npm install &&
       tail -f /dev/null"
-            
+      
+      
