@@ -15,9 +15,11 @@ services:
       - PORT=3000
     expose:
       - '3000'
+    stop_signal: 'SIGKILL'
     command: >
       sh -c
       "apt-get update &&
       apt-get install -y haxe &&
-      tail -f /dev/null"
+      npm install --global git-cache-http-server &&
+      git-cache-http-server --port 8080 --cache-dir /tmp/cache/git"
       
