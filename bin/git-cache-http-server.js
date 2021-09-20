@@ -77,16 +77,35 @@ Main.parseAuth = function(s) {
 	return { authorization : s, basic : haxe_crypto_Base64.decode(parts[1]).toString()};
 };
 Main.getParams = function(req) {
-	var r = new EReg("^/(.+)(.git)?/(info/refs\\?service=)?(git-[^-]+-pack)$","");
+	var r = new EReg("^/(.+)(.git)?/(info/refs&service=)?(git-[^-]+-pack)$","");
+	// var r = new EReg("^/(.+)(.git)[?(#branch=)|?(/info/refs\\?service=)]?(git-[^-]+-pack)$","");
+	// var rTest = r.match(req.url)
+	// console.log('rTest: ' + rTest)
+
+
 	if(!r.match(req.url)) {
-		throw new js__$Boot_HaxeError("Cannot deal with url");
+		throw new js__$Boot_HaxeError("Cannot deal with url test new");
 	}
-	return { repo : r.matched(1), auth : Main.parseAuth(req.headers["authorization"]), service : r.matched(4), isInfoRequest : r.matched(3) != null};
+	var branchRepo = r.matched(1).split("?branch=")
+
+	console.log('Branch: ' + branchRepo[1])
+	console.log('repo: ' + branchRepo[0])
+
+	return { repo : branchRepo[0], auth : Main.parseAuth(req.headers["authorization"]), service : r.matched(4), isInfoRequest : r.matched(3) != null, branch : branchRepo[1]};
 };
-Main.clone = function(remote,local,callback) {
-	js_node_ChildProcess.exec("git clone --quiet --mirror \"" + remote + "\" \"" + local + "\"",callback);
+Main.clone = function(remote,local,branch,callback) {
+	console.log('cloning....')
+	console.log('remote: ' + remote)
+	console.log('local: ' + local)
+	console.log('branch: ' + branch)
+	// js_node_ChildProcess.exec("git clone --quiet --depth 1 --filter=blob:none --mirror --branch \"" + branch + " " + remote + "\" \"" + local + "\"",callback);
+	js_node_ChildProcess.exec("git clone --quiet --depth 1 --mirror  --branch " + branch + " \"" + remote + "\" \"" + local + "\"",callback);
+
 };
-Main.fetch = function(remote,local,callback) {
+Main.fetch = function(remote,local,branch,callback) {
+	console.log('remote: ' + remote)
+	console.log('local: ' + local)
+	console.log('branch: ' + branch)
 	js_node_ChildProcess.exec("git -C \"" + local + "\" remote set-url origin \"" + remote + "\"",function(err,stdout,stderr) {
 		js_node_ChildProcess.exec("git -C \"" + local + "\" fetch --quiet --prune --prune-tags",callback);
 	});
@@ -103,14 +122,14 @@ Main.authenticate = function(params,infos,callback) {
 	}
 	req.end();
 };
-Main.update = function(remote,local,infos,callback) {
+Main.update = function(remote,local,branch,infos,callback) {
 	var _this = Main.updatePromises;
 	if(!(__map_reserved[local] != null ? _this.existsReserved(local) : _this.h.hasOwnProperty(local))) {
 		var this1 = Main.updatePromises;
 		var v = new Promise(function(resolve,reject) {
 			process.stdout.write(Std.string("INFO: updating: fetching from " + infos));
 			process.stdout.write("\n");
-			Main.fetch(remote,local,function(ferr,stdout,stderr) {
+			Main.fetch(remote,local,branch,function(ferr,stdout,stderr) {
 				if(ferr != null) {
 					process.stdout.write("WARN: updating: fetch failed");
 					process.stdout.write("\n");
@@ -120,7 +139,7 @@ Main.update = function(remote,local,infos,callback) {
 					process.stdout.write("\n");
 					process.stdout.write("WARN: continuing with clone");
 					process.stdout.write("\n");
-					Main.clone(remote,local,function(cerr,stdout1,stderr1) {
+					Main.clone(remote,local,branch,function(cerr,stdout1,stderr1) {
 						if(cerr != null) {
 							process.stdout.write(Std.string(stdout1));
 							process.stdout.write("\n");
@@ -203,7 +222,7 @@ Main.handleRequest = function(req,res) {
 				return;
 			}
 			if(params.isInfoRequest) {
-				Main.update(remote,local,infos,function(err) {
+				Main.update(remote,local,params.branch,infos,function(err) {
 					if(err != null) {
 						process.stdout.write(Std.string("ERR: " + err));
 						process.stdout.write("\n");
@@ -978,3 +997,4 @@ haxe_crypto_Base64.CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 haxe_crypto_Base64.BYTES = haxe_io_Bytes.ofString(haxe_crypto_Base64.CHARS);
 Main.main();
 })({});
+
